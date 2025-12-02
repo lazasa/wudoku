@@ -3,12 +3,24 @@ import { readFileContent } from './src/files.mjs'
 
 const router = Server.getRouterInstance()
 
+const cache = {}
+
+async function getCached(path) {
+  if (!cache[path]) {
+    cache[path] = await readFileContent(path)
+  }
+  return cache[path]
+}
+
 // handle static files
 router.get('/', async (req, res) => {
   console.log('Serving static files from /public')
   try {
-    const content = await readFileContent('./public/index.html')
-    res.writeHead(200, { 'Content-Type': 'text/html' })
+    const content = await getCached('./public/index.html')
+    res.writeHead(200, {
+      'Content-Type': 'text/html',
+      'Cache-Control': 'public, max-age=3600'
+    })
     res.end(content)
   } catch (error) {
     res.writeHead(500, { 'Content-Type': 'text/plain' })
@@ -18,8 +30,11 @@ router.get('/', async (req, res) => {
 
 router.get('/script.js', async (req, res) => {
   try {
-    const content = await readFileContent('./public/script.js')
-    res.writeHead(200, { 'Content-Type': 'application/javascript' })
+    const content = await getCached('./public/script.js')
+    res.writeHead(200, {
+      'Content-Type': 'application/javascript',
+      'Cache-Control': 'public, max-age=3600'
+    })
     res.end(content)
   } catch (error) {
     res.writeHead(500, { 'Content-Type': 'text/plain' })
@@ -29,8 +44,11 @@ router.get('/script.js', async (req, res) => {
 
 router.get('/styles.css', async (req, res) => {
   try {
-    const content = await readFileContent('./public/styles.css')
-    res.writeHead(200, { 'Content-Type': 'text/css' })
+    const content = await getCached('./public/styles.css')
+    res.writeHead(200, {
+      'Content-Type': 'text/css',
+      'Cache-Control': 'public, max-age=3600'
+    })
     res.end(content)
   } catch (error) {
     res.writeHead(500, { 'Content-Type': 'text/plain' })

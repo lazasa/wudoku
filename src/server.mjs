@@ -128,6 +128,10 @@ class Server {
   listen(callback) {
     this.SERVER.listen(this.PORT, callback)
   }
+
+  close(callback) {
+    this.SERVER.close(callback)
+  }
 }
 
 export { Server, Router }
