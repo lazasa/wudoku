@@ -4,13 +4,34 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="Wudoku - Sudoku autosolver and generator.">
+  <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
   <title>Wudoku</title>
   <link rel="stylesheet" href="styles.css">
-</head>
-<body>
-  <h1>Welcome to Wudoku</h1>
-  <p>Your Sudoku autosolver and generator.</p>
+ </head>
+ <body>
+  <div class="app-shell">
+    <header class="app-header">
+      <div>
+        <div class="tagline">
+          <span class="tagline-dot"></span>
+          <span>Sudoku autosolver & generator</span>
+        </div>
+        <h1>Wudoku</h1>
+      </div>
+      <p>Your browser-based Sudoku playground.</p>
+    </header>
 
+    <main class="app-main">
+      <section class="board-shell" aria-label="Sudoku board">
+        <div id="root"></div>
+      </section>
+
+      <section class="controls-row" aria-label="Board actions">
+        <button id="generate-board">Generate unsolved board</button>
+        <button id="solve-board">Solve board</button>
+      </section>
+    </main>
+  </div>
   <script src="script.js"></script>
-</body>
+ </body>
 </html>

@@ -1,0 +1,236 @@
+/* ---------- CSS RESET / BASE ---------- */
+*,
+*::before,
+*::after {
+	box-sizing: border-box;
+	margin: 0;
+	padding: 0;
+}
+
+html,
+body {
+	height: 100%;
+}
+
+body {
+	font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+	background: radial-gradient(circle at top left, #1d2b64, #1b2735 55%, #090909);
+	color: #f5f7fb;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	padding: 2.5rem 1.75rem;
+}
+
+/* ---------- LAYOUT ---------- */
+.app-shell {
+	width: 100%;
+	max-width: 960px;
+	background: rgba(9, 11, 22, 0.92);
+	border-radius: 1.25rem;
+	box-shadow: 0 24px 60px rgba(0, 0, 0, 0.65);
+	border: 1px solid rgba(255, 255, 255, 0.06);
+	padding: 2.1rem 2rem 1.9rem;
+	backdrop-filter: blur(18px);
+}
+
+@media (min-width: 768px) {
+	.app-shell {
+		padding: 2.6rem 2.9rem 2.3rem;
+	}
+}
+
+.app-header {
+	display: flex;
+	flex-direction: column;
+	gap: 0.5rem;
+	margin-bottom: 2.1rem;
+}
+
+@media (min-width: 640px) {
+	.app-header {
+		flex-direction: row;
+		align-items: baseline;
+		justify-content: space-between;
+	}
+}
+
+h1 {
+	font-size: clamp(1.75rem, 1.5rem + 0.8vw, 2.2rem);
+	letter-spacing: 0.08em;
+	text-transform: uppercase;
+	color: #ffffff;
+}
+
+p {
+	color: #c1c6dd;
+	font-size: 0.95rem;
+}
+
+.tagline {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.4rem;
+	font-size: 0.85rem;
+	text-transform: uppercase;
+	letter-spacing: 0.16em;
+	color: #7fd3ff;
+}
+
+.tagline-dot {
+	width: 6px;
+	height: 6px;
+	border-radius: 999px;
+	background: #7fd3ff;
+	box-shadow: 0 0 0 4px rgba(127, 211, 255, 0.2);
+}
+
+/* ---------- CONTROLS ---------- */
+.controls-row {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	justify-content: space-between;
+	gap: 0.9rem 1.1rem;
+	margin-top: 1.6rem;
+	margin-bottom: 0.25rem;
+}
+
+button {
+	cursor: pointer;
+	border: none;
+	border-radius: 999px;
+	padding: 0.65rem 1.4rem;
+	font-size: 0.95rem;
+	font-weight: 600;
+	letter-spacing: 0.06em;
+	text-transform: uppercase;
+	background: linear-gradient(135deg, #00f5a0, #00d9f5);
+	color: #021318;
+	box-shadow: 0 14px 30px rgba(0, 216, 245, 0.45);
+	transition: transform 0.18s ease, box-shadow 0.18s ease, filter 0.15s ease;
+}
+
+button:hover {
+	transform: translateY(-1px);
+	box-shadow: 0 18px 38px rgba(0, 216, 245, 0.55);
+	filter: brightness(1.05);
+}
+
+button:active {
+	transform: translateY(0);
+	box-shadow: 0 8px 18px rgba(0, 216, 245, 0.4);
+	filter: brightness(0.96);
+}
+
+button:disabled {
+	opacity: 0.55;
+	cursor: default;
+	box-shadow: none;
+}
+
+/* ---------- SUDOKU BOARD ---------- */
+.board-shell {
+	background: radial-gradient(circle at top left, #111827, #020617);
+	border-radius: 1.1rem;
+	padding: 1.3rem;
+	border: 1px solid rgba(148, 163, 184, 0.28);
+	margin-bottom: 0.75rem;
+}
+
+.sudoku-board {
+	width: 100%;
+	max-width: 520px;
+	border-collapse: collapse;
+	margin-inline: auto;
+	table-layout: fixed;
+}
+
+.sudoku-cell {
+	position: relative;
+	width: calc(100% / 9);
+	aspect-ratio: 1 / 1;
+	text-align: center;
+	vertical-align: middle;
+	font-size: clamp(1.3rem, 1.1rem + 1vw, 1.6rem);
+	font-weight: 500;
+	color: #e5e7eb;
+	border: 1px solid rgba(55, 65, 81, 0.9);
+}
+
+/* heavier lines for 3x3 blocks */
+.sudoku-cell:nth-child(3n + 1) {
+	border-left-width: 2px;
+}
+
+.sudoku-cell:nth-child(3n) {
+	border-right-width: 2px;
+}
+
+.sudoku-board tr:nth-child(3n + 1) .sudoku-cell {
+	border-top-width: 2px;
+}
+
+.sudoku-board tr:nth-child(3n) .sudoku-cell {
+	border-bottom-width: 2px;
+}
+
+.sudoku-board tr:first-child .sudoku-cell {
+	border-top-width: 2px;
+}
+
+.sudoku-board tr:last-child .sudoku-cell {
+	border-bottom-width: 2px;
+}
+
+.sudoku-input {
+	width: 100%;
+	height: 100%;
+	border: none;
+	outline: none;
+	background: transparent;
+	text-align: center;
+	font-family: inherit;
+	font-size: inherit;
+	font-weight: 500;
+	color: #38bdf8;
+	caret-color: #f97316;
+}
+
+.sudoku-input:focus-visible {
+	outline: 2px solid #f97316;
+	outline-offset: -2px;
+	background: rgba(15, 23, 42, 0.72);
+}
+
+.sudoku-cell:nth-child(odd):not(:has(.sudoku-input)) {
+	/* given numbers alternate slightly */
+	background: rgba(15, 23, 42, 0.9);
+}
+
+.sudoku-cell:nth-child(even):not(:has(.sudoku-input)) {
+	background: rgba(15, 23, 42, 0.85);
+}
+
+/* ---------- EMPTY STATE ---------- */
+#root:empty::before {
+	content: 'Click "Generate unsolved board" to start';
+	display: block;
+	text-align: center;
+	padding: 2.5rem 1rem 1.6rem;
+	color: #9ca3af;
+	font-size: 0.95rem;
+}
+
+/* ---------- UTILITIES ---------- */
+.sr-only {
+	position: absolute;
+	width: 1px;
+	height: 1px;
+	padding: 0;
+	margin: -1px;
+	overflow: hidden;
+	clip: rect(0, 0, 0, 0);
+	border: 0;
+}
+

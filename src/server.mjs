@@ -43,10 +43,15 @@ class Router {
     }
 
     for (let seg of segments) {
+      // If the segment does not exist, create a new RouteNode and set the handler
       if (!currentNode.children.has(seg)) {
         const newRoute = new RouteNode()
         newRoute.handler.set(method, handler)
         currentNode.children.set(seg, newRoute)
+      }
+      // The segment might exist, but the handler for the method might not
+      else if (!currentNode.children.get(seg).handler.has(method)) {
+        currentNode.children.get(seg).handler.set(method, handler)
       }
 
       currentNode = currentNode.children.get(seg)
@@ -110,6 +115,11 @@ class Server {
         const handler = router.findRoute(req.method, req.url)
 
         if (handler) {
+          res.json = (data, status = 201) => {
+            res.writeHead(status, { 'Content-Type': 'application/json' })
+            res.end(JSON.stringify(data))
+          }
+
           handler(req, res)
         } else {
           res.writeHead(404, { 'Content-Type': 'text/plain' })

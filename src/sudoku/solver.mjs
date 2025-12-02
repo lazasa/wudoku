@@ -29,7 +29,7 @@ function isValid(board, row, col, num) {
   return true
 }
 
-function solveSudoku(board, rowPos, colPos) {
+function solveSudoku(board, rowPos = 0, colPos = 0) {
   if (rowPos === 8 && colPos === 9) return true
 
   if (colPos === 9) {
