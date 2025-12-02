@@ -31,6 +31,42 @@ function renderBoard(board) {
   root.appendChild(table)
 }
 
+function renderStep(step) {
+  const cellIndex = step.row * 9 + step.col
+  const cell = $$('.sudoku-cell')[cellIndex]
+  cell.textContent = step.value === 0 ? '' : step.value
+}
+
+// Fisher-Yates (Knuth) shuffle
+function shuffleArray(array) {
+  let currentIndex = array.length
+  let randomIndex
+
+  while (currentIndex !== 0) {
+    randomIndex = Math.floor(Math.random() * currentIndex)
+    currentIndex--
+    ;[array[currentIndex], array[randomIndex]] = [
+      array[randomIndex],
+      array[currentIndex]
+    ]
+  }
+
+  return array
+}
+
+function renderSteps(steps) {
+  const queue = shuffleArray([...steps])
+
+  const interval = setInterval(() => {
+    if (queue.length === 0) {
+      clearInterval(interval)
+      return
+    }
+    const step = queue.shift()
+    renderStep(step)
+  }, 10)
+}
+
 async function getUnsolvedBoard() {
   try {
     const response = await fetch('/sudoku')
@@ -38,7 +74,7 @@ async function getUnsolvedBoard() {
       throw new Error('Network response was not ok')
     }
     const data = await response.json()
-    return data.board
+    return { board: data.board, steps: data.steps }
   } catch (error) {
     console.error('Error fetching unsolved board:', error)
     return null
@@ -56,7 +92,8 @@ async function getSolvedBoard(board) {
       throw new Error('Network response was not ok')
     }
     const data = await response.json()
-    return data.board
+
+    return { board: data.board, steps: data.steps }
   } catch (error) {
     console.error('Error fetching solved board:', error)
     return null
@@ -65,20 +102,24 @@ async function getSolvedBoard(board) {
 
 const generateButton = $('#generate-board')
 generateButton.addEventListener('click', async () => {
-  const board = await getUnsolvedBoard()
-  if (board) {
+  const { board, steps } = await getUnsolvedBoard()
+
+  if (!currentBoard) {
     currentBoard = board
     renderBoard(board)
+  } else {
+    currentBoard = board
+    renderSteps(steps)
   }
 })
 
 const solveButton = $('#solve-board')
 solveButton.addEventListener('click', async () => {
   if (currentBoard) {
-    const solvedBoard = await getSolvedBoard(currentBoard)
+    const { board: solvedBoard, steps } = await getSolvedBoard(currentBoard)
     if (solvedBoard) {
       currentBoard = solvedBoard
-      renderBoard(solvedBoard)
+      renderSteps(steps)
     }
   }
 })

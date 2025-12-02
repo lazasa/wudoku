@@ -74,9 +74,9 @@ router.get('/favicon.ico', async (req, res) => {
 
 // Returns a new unsolved Sudoku board
 router.get('/sudoku', async (req, res) => {
-  const unsolvedBoard = getUnsolvedBoard()
+  const { board, steps } = await getUnsolvedBoard()
 
-  res.json({ board: unsolvedBoard })
+  res.json({ board, steps })
 })
 
 // Solves the provided Sudoku board
@@ -88,13 +88,11 @@ router.post('/sudoku', async (req, res) => {
   req.on('end', () => {
     try {
       const { board } = JSON.parse(body)
-      console.log('received board:', board)
-      // Here you would implement the solving logic
-      // For demonstration, we will just return the same board
-      solveSudoku(board)
-
-      res.json({ board })
+      const stepStore = []
+      solveSudoku(board, stepStore)
+      res.json({ board, steps: stepStore })
     } catch (error) {
+      console.log(error)
       res.writeHead(400, { 'Content-Type': 'text/plain' })
       res.end('Invalid JSON')
     }
@@ -106,7 +104,5 @@ const server = new Server(process.env.PORT || 8080, router)
 server.listen(() => {
   console.log(`Server is listening on port ${process.env.PORT || 8080}`)
   console.log('Registered routes:')
-  const found = router.findRoute('POST', 'sudoku')
-  console.log(found)
   router.printTree()
 })

@@ -29,7 +29,7 @@ function isValid(board, row, col, num) {
   return true
 }
 
-function solveSudoku(board, rowPos = 0, colPos = 0) {
+function solveSudoku(board, stepStore, rowPos = 0, colPos = 0) {
   if (rowPos === 8 && colPos === 9) return true
 
   if (colPos === 9) {
@@ -37,12 +37,15 @@ function solveSudoku(board, rowPos = 0, colPos = 0) {
     colPos = 0
   }
 
-  if (board[rowPos][colPos] !== 0) return solveSudoku(board, rowPos, colPos + 1)
+  if (board[rowPos][colPos] !== 0)
+    return solveSudoku(board, stepStore, rowPos, colPos + 1)
 
   for (let tryNumber = 1; tryNumber <= 9; tryNumber++) {
     if (isValid(board, rowPos, colPos, tryNumber)) {
       board[rowPos][colPos] = tryNumber
-      if (solveSudoku(board, rowPos, colPos + 1)) return true
+      stepStore.push({ row: rowPos, col: colPos, value: tryNumber })
+      if (solveSudoku(board, stepStore, rowPos, colPos + 1)) return true
+      stepStore.pop()
       board[rowPos][colPos] = 0
     }
   }

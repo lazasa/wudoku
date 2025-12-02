@@ -117,7 +117,7 @@ class Server {
         if (handler) {
           res.json = (data, status = 201) => {
             res.writeHead(status, { 'Content-Type': 'application/json' })
-            res.end(JSON.stringify(data))
+            res.end(JSON.stringify(data, null, 2))
           }
 
           handler(req, res)

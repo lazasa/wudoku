@@ -21,7 +21,7 @@ function shuffledDigits() {
   return nums
 }
 
-function randomizeSudoku(board, rowPos = 0, colPos = 0) {
+function randomizeSudoku(board, steps, rowPos = 0, colPos = 0) {
   if (rowPos === 8 && colPos === 9) return true
 
   if (colPos === 9) {
@@ -30,13 +30,15 @@ function randomizeSudoku(board, rowPos = 0, colPos = 0) {
   }
 
   if (board[rowPos][colPos] !== 0)
-    return randomizeSudoku(board, rowPos, colPos + 1)
+    return randomizeSudoku(board, steps, rowPos, colPos + 1)
 
   const digits = shuffledDigits()
   for (const tryNumber of digits) {
     if (isValid(board, rowPos, colPos, tryNumber)) {
       board[rowPos][colPos] = tryNumber
-      if (randomizeSudoku(board, rowPos, colPos + 1)) return true
+      steps.set(`${rowPos},${colPos}`, tryNumber)
+      if (randomizeSudoku(board, steps, rowPos, colPos + 1)) return true
+      steps.delete(`${rowPos},${colPos}`)
       board[rowPos][colPos] = 0
     }
   }
@@ -44,13 +46,14 @@ function randomizeSudoku(board, rowPos = 0, colPos = 0) {
   return false
 }
 
-function unsolveSudoku(board, nhints) {
+function unsolveSudoku(board, nhints, steps) {
   let hintsToRemove = 81 - nhints
   while (hintsToRemove > 0) {
     const row = Math.floor(Math.random() * 9)
     const col = Math.floor(Math.random() * 9)
 
     if (board[row][col] !== 0) {
+      steps.set(`${row},${col}`, 0)
       board[row][col] = 0
       hintsToRemove--
     }
@@ -59,9 +62,17 @@ function unsolveSudoku(board, nhints) {
 
 function getUnsolvedBoard(nhints = MIN_HINTS) {
   const board = generateEmptyBoard()
-  randomizeSudoku(board)
-  unsolveSudoku(board, nhints)
-  return board
+  let steps = new Map()
+  randomizeSudoku(board, steps)
+  unsolveSudoku(board, nhints, steps)
+
+  const parsedSteps = []
+  for (const [key, value] of steps.entries()) {
+    const [row, col] = key.split(',').map(Number)
+    parsedSteps.push({ row, col, value })
+  }
+
+  return { board, steps: parsedSteps }
 }
 
 export { getUnsolvedBoard }
