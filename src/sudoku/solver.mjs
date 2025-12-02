@@ -50,4 +50,4 @@ function solveSudoku(board, rowPos = 0, colPos = 0) {
   return false
 }
 
-export { solveSudoku }
+export { solveSudoku, isValid }
