@@ -50,14 +50,4 @@ function solveSudoku(board, rowPos, colPos) {
   return false
 }
 
-function printBoard(board) {
-  for (let r = 0; r < 9; r++) {
-    let row = ''
-    for (let d = 0; d < 9; d++) {
-      row += board[r][d] + ' '
-    }
-    console.log(row)
-  }
-}
-
-export { solveSudoku, printBoard }
+export { solveSudoku }
