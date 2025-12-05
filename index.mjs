@@ -1,104 +1,24 @@
 import { Server } from './src/server.mjs'
-import { readFileContent } from './src/files.mjs'
-import { getUnsolvedBoard } from './src/sudoku/generator.mjs'
-import { solveSudoku } from './src/sudoku/solver.mjs'
+import {
+  serveFavicon,
+  serveHtml,
+  serveScript,
+  serveStyles
+} from './src/controllers/static.mjs'
+import { getUnsolvedBoard, getSolvedBoard } from './src/controllers/sudoku.mjs'
 import { Worker } from 'worker_threads'
 
 const router = Server.getRouterInstance()
 
-const cache = {}
-
-async function getCached(path) {
-  if (!cache[path]) {
-    cache[path] = await readFileContent(path)
-  }
-  return cache[path]
-}
-
 // handle static files
-router.get('/', async (req, res) => {
-  console.log('Serving static files from /public')
-  try {
-    const content = await getCached('./public/index.html')
-    res.writeHead(200, {
-      'Content-Type': 'text/html',
-      'Cache-Control': 'public, max-age=3600'
-    })
-    res.end(content)
-  } catch (error) {
-    res.writeHead(500, { 'Content-Type': 'text/plain' })
-    res.end('Internal Server Error')
-  }
-})
+router.get('/', serveHtml)
+router.get('/script.js', serveScript)
+router.get('/styles.css', serveStyles)
+router.get('/favicon.ico', serveFavicon)
 
-router.get('/script.js', async (req, res) => {
-  try {
-    const content = await getCached('./public/script.js')
-    res.writeHead(200, {
-      'Content-Type': 'application/javascript',
-      'Cache-Control': 'public, max-age=3600'
-    })
-    res.end(content)
-  } catch (error) {
-    res.writeHead(500, { 'Content-Type': 'text/plain' })
-    res.end('Internal Server Error')
-  }
-})
-
-router.get('/styles.css', async (req, res) => {
-  try {
-    const content = await getCached('./public/styles.css')
-    res.writeHead(200, {
-      'Content-Type': 'text/css',
-      'Cache-Control': 'public, max-age=3600'
-    })
-    res.end(content)
-  } catch (error) {
-    res.writeHead(500, { 'Content-Type': 'text/plain' })
-    res.end('Internal Server Error')
-  }
-})
-
-router.get('/favicon.ico', async (req, res) => {
-  try {
-    const content = await getCached('./public/favicon.ico')
-    res.writeHead(200, {
-      'Content-Type': 'image/x-icon',
-      'Cache-Control': 'public, max-age=3600'
-    })
-    res.end(content)
-  } catch (error) {
-    res.writeHead(500, { 'Content-Type': 'text/plain' })
-    res.end('Internal Server Error')
-  }
-})
-
-// Returns a new unsolved Sudoku board
-router.get('/sudoku', async (req, res) => {
-  const { board, steps } = await getUnsolvedBoard()
-
-  res.json({ board, steps })
-})
-
-// Solves the provided Sudoku board
-router.post('/sudoku', async (req, res) => {
-  let body = ''
-  req.on('data', chunk => {
-    body += chunk.toString()
-  })
-  req.on('end', () => {
-    try {
-      const { board } = JSON.parse(body)
-      const stepStore = []
-      solveSudoku(board, stepStore)
-      res.json({ board, steps: stepStore })
-    } catch (error) {
-      console.log(error)
-      res.writeHead(400, { 'Content-Type': 'text/plain' })
-      res.end('Invalid JSON')
-    }
-  })
-})
+// Sudoku
+router.get('/sudoku', getUnsolvedBoard)
+router.post('/sudoku', getSolvedBoard)
 
 const server = new Server(process.env.PORT || 8080, router)
 

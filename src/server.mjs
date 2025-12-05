@@ -69,7 +69,7 @@ class Router {
   printTree(node = this.root, indentation = 0) {
     const indent = '-'.repeat(indentation)
     node.children.forEach((childNode, part) => {
-      console.log(`${indent}${part}`)
+      console.log(`${indent} /${part} [${[...childNode.handler.keys()]}]`)
       this.printTree(childNode, indentation + 1)
     })
   }
