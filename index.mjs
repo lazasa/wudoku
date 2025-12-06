@@ -4,9 +4,12 @@ import {
   serveHtml,
   serveScript,
   serveStyles
-} from './src/controllers/static.mjs'
-import { getUnsolvedBoard, getSolvedBoard } from './src/controllers/sudoku.mjs'
-import { Worker } from 'worker_threads'
+} from './src/controllers/static.controller.mjs'
+import {
+  getUnsolvedBoard,
+  getSolvedBoard
+} from './src/controllers/sudoku.controller.mjs'
+import { initializeWorkers } from './src/workers/workers.mjs'
 
 const router = Server.getRouterInstance()
 
@@ -20,17 +23,9 @@ router.get('/favicon.ico', serveFavicon)
 router.get('/sudoku', getUnsolvedBoard)
 router.post('/sudoku', getSolvedBoard)
 
+// Create http server and workers
 const server = new Server(process.env.PORT || 8080, router)
-
-const sudokuWorker = new Worker('./src/workers/sudokuWorker.mjs', {
-  type: 'module'
-})
-
-sudokuWorker.onmessage = event => {
-  console.log('Message from sudokuWorker:', event.data)
-}
-
-sudokuWorker.postMessage('Hello, worker!')
+initializeWorkers()
 
 server.listen(() => {
   console.log(`Server is listening on port ${process.env.PORT || 8080}`)
