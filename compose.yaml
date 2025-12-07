@@ -1,0 +1,9 @@
+services:
+  wudoku:
+    build: .
+    container_name: wudoku
+    ports:
+      - "80:80"
+    env_file:
+      - .env
+    restart: unless-stopped

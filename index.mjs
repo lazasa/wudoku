@@ -24,11 +24,11 @@ router.get('/sudoku', getUnsolvedBoard)
 router.post('/sudoku', getSolvedBoard)
 
 // Create http server and workers
-const server = new Server(process.env.PORT || 8080, router)
+const server = new Server(process.env.PORT || 80, router)
 initializeWorkers()
 
 server.listen(() => {
-  console.log(`Server is listening on port ${process.env.PORT || 8080}`)
+  console.log(`Server is listening on port ${process.env.PORT || 80}`)
   console.log('Registered routes:')
   router.printTree()
 })
