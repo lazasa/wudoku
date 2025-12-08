@@ -5,7 +5,7 @@ WORKDIR /app
 RUN adduser -D -H appuser
 
 COPY . ./
-EXPOSE 80
+EXPOSE 8080
 
 USER appuser
 
