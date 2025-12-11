@@ -1,4 +1,4 @@
-import { Server } from './src/server.mjs'
+import { Server } from './src/core/index.mjs'
 import {
   serveFavicon,
   serveHtml,
