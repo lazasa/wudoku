@@ -2,6 +2,7 @@ import { Worker } from 'node:worker_threads'
 import EventEmitter from 'node:events'
 import os from 'node:os'
 
+// not implemented yet
 class ThreadPool extends EventEmitter {
   constructor(config) {
     super()
