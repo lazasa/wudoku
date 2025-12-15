@@ -3,7 +3,7 @@ import { Worker } from 'worker_threads'
 let sudokuWorker = null
 
 const initializeWorkers = () => {
-  sudokuWorker = new Worker('./src/workers/sudokuWorker.mjs', {
+  sudokuWorker = new Worker('./sudokuWorker.mjs', {
     type: 'module'
   })
 }
