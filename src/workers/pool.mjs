@@ -2,8 +2,58 @@ import { Worker } from 'node:worker_threads'
 import EventEmitter from 'node:events'
 import os from 'node:os'
 
-// not implemented yet
-class ThreadPool extends EventEmitter {
+class WorkerPool {
+  constructor(config) {
+    this.validateConfig(config)
+
+    this.config = {
+      size: config.size || os.cpus().length - 1,
+      workerScript: config.workerScript
+    }
+
+    this.workers = []
+    this.pending = new Map()
+
+    this.initialize()
+  }
+
+  validateConfig(config) {
+    if (!config || typeof config !== 'object') {
+      throw new Error('Configuration object is required')
+    }
+
+    const { size } = config
+
+    if (size !== undefined && (size < 1 || !Number.isInteger(size))) {
+      throw new Error('Invalid pool size')
+    }
+  }
+
+  execute(task) {
+    const requestId = crypto.randomUUID()
+
+    return new Promise((resolve, reject) => {
+      const availableWorker = this.workers.find(
+        worker => !this.pending.has(worker)
+      )
+
+      if (!availableWorker) {
+        return reject(new Error('No available workers'))
+      }
+
+      this.pending.set(availableWorker, { resolve, reject })
+    })
+  }
+
+  initialize() {
+    for (let i = 0; i < this.config.size; i++) {
+      const newWorker = new Worker(this.config.workerScript)
+      this.workers.push(newWorker)
+    }
+  }
+}
+
+class Threads extends EventEmitter {
   constructor(config) {
     super()
     this.validateConfig(config)
@@ -285,4 +335,4 @@ class ThreadPool extends EventEmitter {
   }
 }
 
-export { ThreadPool }
+export { WorkerPool }
