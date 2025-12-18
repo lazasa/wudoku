@@ -1,5 +1,6 @@
 import { Worker } from 'node:worker_threads'
 import os from 'node:os'
+import crypto from 'node:crypto'
 
 class WorkerPool {
   constructor(config) {
@@ -9,6 +10,7 @@ class WorkerPool {
       workerScript: config.workerScript
     }
 
+    this.pending = new Map()
     this.workers = []
     this.currentIndex = 0
 
@@ -29,30 +31,50 @@ class WorkerPool {
 
   execute(task) {
     // round robin worker selection
-    const worker = this.workers[this.currentIndex]
-    this.currentIndex = (this.currentIndex + 1) % this.workers.length
+    const worker = this.#getNextWorker()
 
     return new Promise((resolve, reject) => {
-      const onMessage = result => {
-        worker.off('error', onError)
-        resolve(result)
-      }
+      const id = crypto.randomUUID()
+      this.pending.set(id, { resolve, reject })
 
-      const onError = error => {
-        worker.off('message', onMessage)
-        reject(error)
-      }
-
-      worker.once('message', onMessage)
-      worker.once('error', onError)
-
-      worker.postMessage(task)
+      worker.postMessage({ id, task })
     })
+  }
+
+  #getNextWorker() {
+    const worker = this.workers[this.currentIndex]
+    this.currentIndex = (this.currentIndex + 1) % this.workers.length
+    return worker
+  }
+
+  #handleWorkerMessage(worker, message) {
+    const { id, result, error } = message
+    const pendingTask = this.pending.get(id)
+
+    if (!pendingTask) {
+      return
+    }
+
+    if (error) {
+      pendingTask.reject(new Error(error))
+    } else {
+      pendingTask.resolve(result)
+    }
+
+    this.pending.delete(id)
+  }
+
+  #handleWorkerError(worker, error) {
+    console.error('Worker error:', error)
   }
 
   #initialize() {
     for (let i = 0; i < this.config.size; i++) {
       const newWorker = new Worker(this.config.workerScript)
+      newWorker.on('message', message =>
+        this.#handleWorkerMessage(newWorker, message)
+      )
+      newWorker.on('error', error => this.#handleWorkerError(newWorker, error))
       this.workers.push(newWorker)
     }
   }
