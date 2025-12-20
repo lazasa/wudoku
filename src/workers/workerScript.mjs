@@ -1,15 +1,15 @@
 import { parentPort } from 'worker_threads'
-import { WORKER_MESSAGES, CLIENT_MESSAGES } from '../const/index.mjs'
+import { CLIENT_MESSAGES } from '../const/index.mjs'
 import { solveSudoku } from '../sudoku/solver.mjs'
 import { getUnsolvedBoard } from '../sudoku/generator.mjs'
 
 parentPort.on('message', message => {
-  const { type, payload } = message
+  const { id, type, payload } = message
 
   if (type === CLIENT_MESSAGES.SOLVE_SUDOKU) {
     if (!payload || !payload.board) {
       parentPort.postMessage({
-        type: WORKER_MESSAGES.ERROR,
+        id,
         error: 'No board provided'
       })
       return
@@ -18,8 +18,8 @@ parentPort.on('message', message => {
     const stepStore = []
     solveSudoku(board, stepStore)
     parentPort.postMessage({
-      type: WORKER_MESSAGES.SUDOKU_SOLVED,
-      payload: { board, steps: stepStore }
+      id,
+      result: { board, steps: stepStore }
     })
   }
 
@@ -27,8 +27,8 @@ parentPort.on('message', message => {
     const { board, steps } = getUnsolvedBoard()
 
     parentPort.postMessage({
-      type: WORKER_MESSAGES.SUDOKU_GENERATED,
-      payload: { board, steps }
+      id,
+      result: { board, steps }
     })
   }
 })

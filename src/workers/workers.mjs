@@ -1,11 +1,7 @@
-import { Worker } from 'worker_threads'
+import { WorkerPool } from './pool.mjs'
 
-let sudokuWorker = null
+const workerPool = new WorkerPool({
+  workerScript: new URL('./workerScript.mjs', import.meta.url)
+})
 
-const initializeWorkers = () => {
-  sudokuWorker = new Worker('./sudokuWorker.mjs', {
-    type: 'module'
-  })
-}
-
-export { sudokuWorker, initializeWorkers }
+export { workerPool }

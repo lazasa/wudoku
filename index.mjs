@@ -9,7 +9,6 @@ import {
   getUnsolvedBoard,
   getSolvedBoard
 } from './src/controllers/sudoku.controller.mjs'
-import { initializeWorkers } from './src/workers/workers.mjs'
 import crypto from 'node:crypto'
 
 const router = Server.getRouterInstance()
@@ -26,7 +25,6 @@ router.post('/sudoku', getSolvedBoard)
 
 // Create http server and workers
 const server = new Server(process.env.PORT || 8080, router)
-initializeWorkers()
 
 function extractSocketFrame(buffer) {
   const opcode = buffer[0] & 0b00001111
