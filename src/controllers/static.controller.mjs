@@ -1,5 +1,5 @@
 import path, { dirname } from 'node:path'
-import { readFileContent } from '../files.mjs'
+import { readFileContent } from '../core/files.mjs'
 import { fileURLToPath } from 'url'
 
 const __filename = fileURLToPath(import.meta.url)

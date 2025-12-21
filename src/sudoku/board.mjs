@@ -5,7 +5,6 @@ class Board {
     this.size = size
     this.grid = Array.from({ length: size }, () => Array(size).fill(0))
     this.blockSize = Math.sqrt(size)
-
     if (!Number.isInteger(this.blockSize)) {
       throw new Error('Board size must be a perfect square.')
     }

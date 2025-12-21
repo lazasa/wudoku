@@ -1,15 +1,22 @@
 const $ = selector => document.querySelector.bind(document)(selector)
 const $$ = selector => document.querySelectorAll.bind(document)(selector)
 
+const BOARD_SIZE = {
+  SMALL: 4,
+  MEDIUM: 9,
+  LARGE: 16
+}
+
 const root = $('#root')
 let currentBoard = null
+let currentBoardSize = BOARD_SIZE.MEDIUM
 
-function renderBoard(board) {
+function renderBoard({ grid }) {
   root.innerHTML = ''
   const table = document.createElement('table')
   table.classList.add('sudoku-board')
 
-  board.forEach((row, rowIndex) => {
+  grid.forEach((row, rowIndex) => {
     const tr = document.createElement('tr')
     row.forEach((cell, colIndex) => {
       const td = document.createElement('td')
@@ -32,7 +39,7 @@ function renderBoard(board) {
 }
 
 function renderStep(step) {
-  const cellIndex = step.row * 9 + step.col
+  const cellIndex = step.row * currentBoard.size + step.col
   const cell = $$('.sudoku-cell')[cellIndex]
   cell.textContent = step.value === 0 ? '' : step.value
 }
@@ -69,7 +76,7 @@ function renderSteps(steps) {
 
 async function getUnsolvedBoard() {
   try {
-    const response = await fetch('/sudoku')
+    const response = await fetch(`/sudoku?size=${currentBoardSize}`)
     if (!response.ok) {
       throw new Error('Network response was not ok')
     }
@@ -86,7 +93,7 @@ async function getSolvedBoard(board) {
     const response = await fetch('/sudoku', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ board })
+      body: JSON.stringify({ ...board })
     })
     if (!response.ok) {
       throw new Error('Network response was not ok')
